@@ -1,3 +1,7 @@
+// 
+// 僵尸进程示例
+//
+
 #include <stdio.h>
 #include <unistd.h>
 

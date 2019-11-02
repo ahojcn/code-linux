@@ -1,3 +1,7 @@
+// 
+// 获取环境变量的方式
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 

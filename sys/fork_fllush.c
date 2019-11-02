@@ -1,3 +1,7 @@
+// 
+// fork 和 缓冲区
+//
+
 #include <stdio.h>
 #include <unistd.h>
 
