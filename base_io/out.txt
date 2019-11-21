@@ -1,2 +1,3 @@
-hehe222
-333
+new print 1
+new fprintf 1
+lalala
