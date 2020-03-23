@@ -1,0 +1,3 @@
+new print 1
+new fprintf 1
+lalala
