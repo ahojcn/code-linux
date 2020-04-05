@@ -17,17 +17,22 @@
 #include <unistd.h>
 #include <pthread.h>
 
+struct ThreadArg {
+    int num;
+};
+
 void* ThreadEntry(void* arg) {
-    (void) arg;
     while (1) {
-        printf("In ThreadEntry, %lu\n", pthread_self());
+        printf("In ThreadEntry, %lu, arg %d\n", pthread_self(), ((struct ThreadArg*) arg)->num);
         sleep(1);
     }
 }
 
 int main() {
     pthread_t tid;
-    pthread_create(&tid, NULL, ThreadEntry, NULL);
+    struct ThreadArg ta;
+    ta.num = 20;
+    pthread_create(&tid, NULL, ThreadEntry, &ta);
     while (1) {
         printf("In Main Thread, %lu\n", pthread_self());
         sleep(1);

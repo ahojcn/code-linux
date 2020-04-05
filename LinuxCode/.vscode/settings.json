@@ -2,6 +2,7 @@
     "files.associations": {
         "*.sh": "shellscript",
         "*.tcc": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "functional": "cpp"
     }
 }
