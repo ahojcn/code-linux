@@ -17,7 +17,6 @@ int main(int argc, char **argv) {
     }
 
     // 2. 客户端一般不需要 bind，没有 bind 操作系统随机分配端口号
-
     sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = inet_addr(argv[1]);
@@ -34,6 +33,8 @@ int main(int argc, char **argv) {
         recvfrom(sock, buf_output, sizeof(buf_output), 0, NULL, NULL);  //  NULL, NULL 表示不关注对端地址
         printf("resp: %s\n", buf_output);
     }
+
+    close(sock);
 
     return 0;
 }

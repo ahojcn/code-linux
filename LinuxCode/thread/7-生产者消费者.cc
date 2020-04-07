@@ -20,6 +20,7 @@ void* Product(void* args) {
   while (1) {
     pthread_mutex_lock(&mutex);
     data.push_back(++count);
+    printf("Product: %d\n", count);
     pthread_mutex_unlock(&mutex);
     pthread_cond_signal(&cond);  // 通知消费者，已经有数据了
     usleep(789789);
@@ -53,16 +54,12 @@ int main() {
   pthread_mutex_init(&mutex, NULL);
   pthread_cond_init(&cond, NULL);
 
-  pthread_t tid1, tid2, tid3, tid4;
+  pthread_t tid1, tid2;
   pthread_create(&tid1, NULL, Product, NULL);
-  pthread_create(&tid3, NULL, Product, NULL);
   pthread_create(&tid2, NULL, Consume, NULL);
-  pthread_create(&tid4, NULL, Consume, NULL);
 
   pthread_join(tid1, NULL);
-  pthread_join(tid3, NULL);
   pthread_join(tid2, NULL);
-  pthread_join(tid4, NULL);
 
   pthread_cond_destroy(&cond);
   pthread_mutex_destroy(&mutex);
@@ -83,6 +80,7 @@ void* Product(void* args) {
   int count = 0;
   while (1) {
     queue.Push(++count);
+    printf("Product: %d\n", count);
     usleep(789789);
   }
   return NULL;
