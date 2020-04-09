@@ -1,77 +1,70 @@
-#pragma once
+#ifndef __UDP_SOCKET__
+#define __UDP_SOCKET__
 
-#include <iostream>
-#include <string>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <string>
+
 class UdpSocket {
 public:
-    UdpSocket() : fd_(-1) {}
-    // 创建一个 socket（客户端、服务器）
-    bool Socket() {
-        fd_ = socket(AF_INET, SOCK_DGRAM, 0);
-        if (fd_ < 0) {
-            return false;
-        }
-        return true;
+	UdpSocket() : m_fd(-1) {}
+    ~UdpSocket() {
+        Close();
     }
-    // 绑定 ip 和 端口号（服务器）
-    bool Bind(const std::string& ip, const std::uint16_t port) {
+
+    // 创建一个 UDP socket
+    // 创建成功返回 true，失败返回 false
+	bool Create() {
+        m_fd = socket(AF_INET, SOCK_DGRAM, 0);
+        return m_fd == -1 ? false : true;
+    }
+    // 关闭 socket
+    bool Close() {
+        return close(m_fd) == -1 ? false : true;
+    }
+    // 绑定 ip 和 port
+    bool Bind(const std::string& ip, const std::uint16_t& port) {
         sockaddr_in addr;
         addr.sin_family = AF_INET;
         addr.sin_addr.s_addr = inet_addr(ip.c_str());
         addr.sin_port = htons(port);
-        int ret = bind(fd_, (sockaddr*)&addr, sizeof(addr));
-        if (ret < 0) {
-            perror("bind");
-            return false;
-        }
-
-        return true;
+        return bind(m_fd, (sockaddr*)&addr, sizeof(addr)) == -1 ? false : true;
     }
-    // 关闭 socket 文件描述符（客户端、服务器）
-    bool Close() {
-        if (fd_ != -1) {
-            close(fd_);
-        }
-        return true;
-    }
-    // 接收数据（客户端、服务器）
-    bool RecvFrom(std::string* msg, std::string* ip = NULL, std::uint16_t* port = NULL) {
-        char buf[1024 * 10] = {0};
+    // 接收数据
+    bool RecvFrom(std::string* msg, std::string* ip=nullptr, std::uint16_t* port=nullptr) {
+        char buf[1024] = { 0 };
         sockaddr_in peer;
-        socklen_t len = sizeof(peer);
-        ssize_t n = recvfrom(fd_, buf, sizeof(buf) - 1, 0, (sockaddr*)&peer, &len);
+        socklen_t peer_len = sizeof(peer);
+        ssize_t n = recvfrom(m_fd, buf, sizeof(buf) - 1, 0, (sockaddr*)&peer, &peer_len);
         if (n < 0) {
-            perror("recvfrom");
             return false;
         }
         *msg = buf;
-        if (ip != NULL) {
+        if (ip != nullptr) {
             *ip = inet_ntoa(peer.sin_addr);
         }
-        if (port != NULL) {
+        if (port != nullptr) {
             *port = ntohs(peer.sin_port);
         }
-
         return true;
     }
-    // 发送数据 msg
+    // 发送数据
     bool SendTo(const std::string& msg, const std::string& ip, const std::uint16_t& port) {
         sockaddr_in addr;
         addr.sin_family = AF_INET;
-        addr.sin_port = htons(port);
         addr.sin_addr.s_addr = inet_addr(ip.c_str());
-        ssize_t n = sendto(fd_, msg.c_str(), msg.size(), 0, (sockaddr*)&addr, sizeof(addr));
-        if (n < 0) {
-            perror("sendto");
-            return false;
-        }
-        return true;
+        addr.sin_port = htons(port);
+        ssize_t n = sendto(m_fd, msg.c_str(), msg.size(), 0, (sockaddr*)&addr, sizeof(addr));
+        return n == -1 ? false : true;
     }
+
 private:
-    int fd_;
+	int m_fd;
 };
+
+#endif // __UDP_SOCKET__
+
